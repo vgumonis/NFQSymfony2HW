@@ -36,13 +36,41 @@ class PeopleController extends AbstractController
             return new JsonResponse(['error' => 'Invalid method'], Response::HTTP_BAD_REQUEST);
         }
 
-        $students = $this->getStudents();
+        
         switch ($element) {
             case 'name':
+            	$students = $this->getStudents();
                 return new JsonResponse(['valid' => in_array(strtolower($input), $students)]);
+             case 'team':
+                $teams = $this->getTeams();
+                return new JsonResponse(['valid' => in_array(strtolower($input), $teams)]);    
         }
 
         return new JsonResponse(['error' => 'Invalid method'], Response::HTTP_BAD_REQUEST);
+    }
+
+
+
+   private function getTeams()
+    {
+        $teams = [];
+        $storage = json_decode($this->getStorage(), true);
+        foreach ($storage as $teamName => $teamData ) {
+            $teams[] = strtolower($teamName);
+        }
+        return $teams;
+    }
+
+    private function getStudents(): array
+    {
+        $students = [];
+        $storage = json_decode($this->getStorage(), true);
+        foreach ($storage as $teamData) {
+            foreach ($teamData['students'] as $student) {
+                $students[] = strtolower($student);
+            }
+        }
+        return $students;
     }
 
     private function getStorage()
@@ -106,15 +134,4 @@ class PeopleController extends AbstractController
         }';
     }
 
-    private function getStudents(): array
-    {
-        $students = [];
-        $storage = json_decode($this->getStorage(), true);
-        foreach ($storage as $teamData) {
-            foreach ($teamData['students'] as $student) {
-                $students[] = strtolower($student);
-            }
-        }
-        return $students;
-    }
 }
